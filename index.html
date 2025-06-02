@@ -25,9 +25,9 @@
     }).addTo(map);
 
     function getColor(value, minVal, maxVal) {
-      if (value < 10) {
+      if (value < 12) {
         return chroma.scale(['red', 'green'])(value / 10).hex();
-      } else if (value <= 15) {
+      } else if (value <= 13) {
         return 'green';
       } else {
         return chroma.scale(['green', 'red'])((value - 15) / (maxVal - 15)).hex();
