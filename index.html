@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Nitrogen Contour Map</title>
+  <title>Nitrogen Safety Map</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <style>
     html, body, #map {
       height: 100%;
@@ -27,19 +24,32 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    function getColor(value, minVal, maxVal) {
+      if (value < 10) {
+        return chroma.scale(['red', 'green'])(value / 10).hex();
+      } else if (value <= 15) {
+        return 'green';
+      } else {
+        return chroma.scale(['green', 'red'])((value - 15) / (maxVal - 15)).hex();
+      }
+    }
+
     fetch('interpolated_nitrogen.json')
       .then(res => res.json())
       .then(data => {
         const values = data.features.map(f => f.properties.value);
-        const scale = chroma.scale(['#0000ff', '#00ffff', '#ffff00', '#ff0000']).domain([minVal, maxVal]);
+        const minVal = Math.min(...values);
+        const maxVal = Math.max(...values);
 
         data.features.forEach(f => {
           const coords = f.geometry.coordinates;
           const val = f.properties.value;
+          const color = getColor(val, minVal, maxVal);
+
           L.circleMarker([coords[1], coords[0]], {
             radius: 5,
-            fillColor: scale(val),
-            color: scale(val),
+            fillColor: color,
+            color: color,
             weight: 0.5,
             fillOpacity: 0.6
           }).addTo(map).bindPopup("Nitrogen: " + val.toFixed(2));
